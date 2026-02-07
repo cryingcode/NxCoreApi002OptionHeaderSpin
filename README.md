@@ -17,7 +17,7 @@ From the main project directory containing the `src/` subdirectory the fastest w
 # 2. Build & install from the main project directory
 ./qb.sh
 # 3. Run on a test tape file (libnx.so name works after ldconfig)
-nxcoreOHSS libnx.so /path/to/your.tape.nx2
+symbol-spin libnx.so /path/to/your.tape.nx2
 ```
 
 Most NxCore examples are Windows-oriented and use very old build systems. This project shows how to use modern CMake (3.25+), out-of-source builds, proper rpath handling, and clean C++17 callback wrappers on Linux — while staying as close as possible to the original Sample2 logic.
@@ -33,6 +33,12 @@ Most NxCore examples are Windows-oriented and use very old build systems. This p
 1. Handling the NxCore Symbol Spin Message
 2. Using NxOptionHdr
 3. Constructing Option Symbols in OSI or old OPRA format
+
+## Code Features
+1. Static lib: optionheadersymbolspinproject (all processors: StatusMessage.cpp, SymbolSpinMessage.cpp, nxcore_global.cpp)
+2. Executable: symbol-spin (links lib + libnx.so, rpath hardened)
+3. C++17: string_view, ostringstream (no sprintf/strcpy), noexcept/[[nodiscard]]
+4. Ninja: OOS builds, pedantic warnings
 
 ## Prerequisites
 
@@ -127,37 +133,37 @@ cmake --install build
 ```
 Then run locally:
 ```bash
-./install/bin/nxcoreOHSS libnx.so /path/to/your.tape.nx2
+./install/bin/symbol-spin libnx.so /path/to/your.tape.nx2
 ```
 
 #### Installed Files (default prefix /usr/local):
-- Binary: `/usr/local/bin/nxcoreOHSS`
-- Library: `/usr/local/lib/liboptionheadersymbolspinproject.a`
+- Binary: `/usr/local/bin/symbol-spin`
+- Static Library: `/usr/local/lib/liboptionheadersymbolspinproject.a`
 - Library: `/usr/local/lib/extern/nxcore/libnx.so`
 - CMake config: `/usr/local/lib/cmake/OptionHeaderSymbolSpinProject/*.cmake`
 
 ## Running the Application
 After installation and `sudo ldconfig`, the loader finds `libnx.so` by name alone (no full path needed):
 ```bash
-nxcoreOHSS libnx.so /path/to/tape/file.nx2
+symbol-spin libnx.so /path/to/tape/file.nx2
 ```
 Or during development (from build directory):
 ```bash
-./nxcoreOHSS ../extern/nxcore/libnx.so /path/to/your.tape.nx2
+./symbol-spin ../extern/nxcore/libnx.so /path/to/your.tape.nx2
 ```
 
 ### Usage without arguments (help output)
 ```bash
-nxcoreOHSS
+symbol-spin
 Program derived from NxCore API Sample2
-Usage: nxcoreOHSS <path-to-libnx.so> <path-to-tapefile>
+Usage: symbol-spin <path-to-libnx.so> <path-to-tapefile>
 ```
 
 ### Sample program output from reading a tapefile
 ```bash
-nxcoreOHSS libnx.so ~/20211013.WE.nx2
+symbol-spin libnx.so ~/20211013.WE.nx2
 Reading from tapefile: /home/crymoney/Crymoney/CrymoneyTest/NanexNxCoreDataSets/20211013.WE.nx2
-NxCore C++ nxcoreOHSS Start.
+NxCore C++ symbol-spin Start.
 Processing the tape: /home/crymoney/Crymoney/CrymoneyTest/NanexNxCoreDataSets/20211013.WE.nx2
 NxCore Initialize Message.
 libnx.so version is v3.2.18
@@ -176,14 +182,14 @@ NxCore Time: 10/13/2021 24:00:00
 NxCore tape file sentinel read -> hour of the day == 24.
 NxCore Complete Message.
 Tape completed normally.
-NxCore C++ nxcoreOHSS Stop.
+NxCore C++ symbol-spin Stop.
 ```
 
 ## Troubleshooting
 - If you get "cannot open shared object file: No such file or directory": Ensure `libnx.so` path is correct and re-run `sudo ldconfig` if the library is installed system-wide.
 - Permission denied when opening tape file: Check file permissions, ownership, and path.
 - Callback not firing: Verify tape file is valid NxCore format (.nx2 or .nx3).
-- `libnx.so`: cannot open shared object file even after install → Check that the binary was built with proper INSTALL_RPATH (run chrpath -l /usr/local/bin/nxcoreOHSS or readelf -d | grep RPATH). If missing, rebuild with rpath settings.
+- `libnx.so`: cannot open shared object file even after install → Check that the binary was built with proper INSTALL_RPATH (run chrpath -l /usr/local/bin/symbol-spin or readelf -d | grep RPATH). If missing, rebuild with rpath settings.
 
 ## Planned / Possible Extensions
 - Unit tests for callback logic (using CppUnit or GoogleTest)

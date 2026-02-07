@@ -34,8 +34,8 @@ Expected output from the install step:
 sudo cmake --install build
 [sudo] password for crymoney: 
 -- Install configuration: ""
--- Installing: /usr/local/bin/nxcoreOHSS
--- Set non-toolchain portion of runtime path of "/usr/local/bin/nxcoreOHSS" to "$ORIGIN/../lib/extern/nxcore"
+-- Installing: /usr/local/bin/symbol-spin
+-- Set non-toolchain portion of runtime path of "/usr/local/bin/symbol-spin" to "$ORIGIN/../lib/extern/nxcore"
 -- Installing: /usr/local/lib/liboptionheadersymbolspinproject.a
 -- Up-to-date: /usr/local/lib/extern
 -- Installing: /usr/local/lib/extern/nxcore
@@ -45,8 +45,8 @@ sudo cmake --install build
 -- Installing: /usr/local/lib/cmake/OptionHeaderSymbolSpinProject/OptionHeaderSymbolSpinProjectTargets-noconfig.cmake
 -- Installing: /usr/local/lib/cmake/OptionHeaderSymbolSpinProject/OptionHeaderSymbolSpinProjectConfigVersion.cmake
 
-Executable application is in the build target directory:  build/nxcoreOHSS
-Executable application is installed as:  nxcoreOHSS
+Executable application is in the build target directory:  build/symbol-spin
+Executable application is installed as:  symbol-spin
 ]]
 
 
@@ -170,41 +170,41 @@ else()
 endif()
 
 # ── Main executable (application) ──────────────────────────────────────
-add_executable(nxcoreOHSS)
-add_executable(OptionHeaderSymbolSpinProject::app ALIAS nxcoreOHSS)
-target_sources(nxcoreOHSS PRIVATE src/main.cpp)
+add_executable(symbol-spin)
+add_executable(OptionHeaderSymbolSpinProject::app ALIAS symbol-spin)
+target_sources(symbol-spin PRIVATE src/main.cpp)
 
 if(BUILD_LIBRARY)
-    target_link_libraries(nxcoreOHSS PRIVATE OptionHeaderSymbolSpinProject::optionheadersymbolspinproject)
+    target_link_libraries(symbol-spin PRIVATE OptionHeaderSymbolSpinProject::optionheadersymbolspinproject)
 endif()
 
 # Link NxCore immediately after targets exist
-target_link_libraries(nxcoreOHSS PRIVATE NxCore::nx)
+target_link_libraries(symbol-spin PRIVATE NxCore::nx)
 if(BUILD_LIBRARY)
     target_link_libraries(optionheadersymbolspinproject PRIVATE NxCore::nx)
 endif()
 
-set_target_properties(nxcoreOHSS PROPERTIES
+set_target_properties(symbol-spin PROPERTIES
     INSTALL_RPATH "$ORIGIN/../lib/extern/nxcore"
     BUILD_RPATH   "${CMAKE_CURRENT_SOURCE_DIR}/extern/nxcore"   # local development
 )
 
 # ── Auto-discover include paths ───────────────
-add_discovered_src_include_paths(nxcoreOHSS)
+add_discovered_src_include_paths(symbol-spin)
 if(BUILD_LIBRARY)
     add_discovered_src_include_paths(optionheadersymbolspinproject)
 endif()
 
 # ── Link NxCore library to both targets ────────────────────────────────
 # This must come AFTER the targets are created
-target_link_libraries(nxcoreOHSS PRIVATE NxCore::nx)
+target_link_libraries(symbol-spin PRIVATE NxCore::nx)
 
 if(BUILD_LIBRARY)
     target_link_libraries(optionheadersymbolspinproject PRIVATE NxCore::nx)
 endif()
 
 # If you have other common dependencies (e.g. threads, extern libs), add them here unconditionally
-# target_link_libraries(nxcoreOHSS PRIVATE ... )
+# target_link_libraries(symbol-spin PRIVATE ... )
 
 # ── Tests (CppUnit) ────────────────────────────────────────────────────
 option(TAPEFILEREADERPROJECT_BUILD_TESTS "Build unit tests" ON)
@@ -279,7 +279,7 @@ endif()
 # ── Install (optional but recommended) ─────────────────────────────────
 include(GNUInstallDirs)
 
-install(TARGETS nxcoreOHSS
+install(TARGETS symbol-spin
   EXPORT OptionHeaderSymbolSpinProjectTargets
   RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

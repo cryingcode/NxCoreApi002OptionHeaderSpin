@@ -5,6 +5,6 @@
 rm -rf build && mkdir build
 cmake -S . -B build -G Ninja -DCMAKE_VERBOSE_MAKEFILE=ON
 cmake --build build --parallel
-sudo rm -rf /usr/local/bin/nxcoreOHSS /usr/local/lib/liboptionheadersymbolspinproject.a /usr/local/lib/extern/nxcore
+sudo rm -rf /usr/local/bin/symbol-spin /usr/local/lib/liboptionheadersymbolspinproject.a /usr/local/lib/extern/nxcore
 sudo cmake --install build 
 sudo ldconfig

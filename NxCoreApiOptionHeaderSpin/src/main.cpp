@@ -1,88 +1,111 @@
-// file: main.cpp
+// main.cpp
 
-////////////////////////////////////////////////////
-//// SampleApp2.cpp                             ////
-//// Sample App for NxCore in C++               ////
-//// Authors: Jeffrey Donovan, Jeremy Truelove  ////
-//// Date: 2017-02-09                           ////
-////////////////////////////////////////////////////
-//// Demonstrates:                              ////
-//// 1) Handling the NxCore Symbol Spin Message ////
-//// 2) Using NxOptionHdr                       ////
-//// 3) Constructing Option Symbols in OSI or   ////
-////    old OPRA format                         ////
-////////////////////////////////////////////////////
+// =============================================================================
+// SampleApp2.cpp
+// Option Header and Symbol Spin Message – Modernized C++17 version
+// Derived from SampleApp1 (Jeffrey Donovan, Jeremy Truelove, 2017)
+//
+// Demonstrates:
+//   - Loading NxCore shared library
+//   - Handling the NxCore Symbol Spin Message
+//   - Using NxOptionHdr
+//   - Constructing Option Symbols in OSI or old OPRA format
+// =============================================================================
 
+#include <iostream>
+#include <string>
+#include <string_view>
+#include <filesystem>
 #include <cstdlib>
-#include <filesystem>              // executable filename
-#include <iostream>                // cout, endl
-#include <iomanip>                 // setw, fixed, setprecision
-#include <stdio.h>                 // sprintf
-#include <string>                  // executable filename
-#include <stdexcept>               // executable filename
-#include "NxCoreAPI_Wrapper_C++.h" // NxCore C++ wrapper with NxCoreClass
+#include <stdexcept>
+#include <dlfcn.h> // for dlerror() — already used indirectly via NxCore
 
 #include "executableUtils.hpp"
 #include "nxcoreCallback.hpp"
 
-NxCoreClass NxCore; // global instance (consider dependency injection in larger apps)
+#include "srclib/nxcore/NxCoreAPI_Wrapper_C++.h"
 
-constexpr unsigned int DEFAULT_PROCESS_FLAGS =
-    NxCF_EXCLUDE_QUOTES |
-    NxCF_EXCLUDE_QUOTES2;
-// | NxCF_EXCLUDE_OPRA;
+extern NxCoreClass NxCore;
 
-// Main Entry Point for app.
+namespace
+{
+
+    // Flags we want to use (excluding most quote-related data to reduce volume)
+    constexpr unsigned int DEFAULT_PROCESS_FLAGS =
+        NxCF_EXCLUDE_QUOTES |
+        NxCF_EXCLUDE_QUOTES2;
+    // | NxCF_EXCLUDE_OPRA;
+
+    void print_usage(std::string_view program_name)
+    {
+        std::cout << "Usage:\n"
+                  << "  " << program_name << " <path-to-libnx.so> [path-to-tape-file]\n\n"
+                  << "Examples:\n"
+                  << "  " << program_name << " ./libnx.so /data/tapes/20250102.nxc\n"
+                  << "  " << program_name << " ./libnx.so            # process live feed\n";
+    }
+
+    [[nodiscard]] std::string get_program_name(int argc, char *argv[])
+    {
+        if (argc <= 0 || !argv || !argv[0])
+        {
+            return "symbol-spin"; // fallback name
+        }
+
+        try
+        {
+            return get_executable_filename();
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Warning: cannot determine executable name: " << e.what() << '\n';
+            return std::filesystem::path(argv[0]).filename().string();
+        }
+    }
+
+} // namespace
+
 int main(int argc, char *argv[])
 {
-    std::string executableFileName;
-
-    try
-    {
-        executableFileName = get_executable_filename();
-    }
-    catch (const exception &e)
-    {
-        std::cerr << "Failed to get executable name: " << e.what() << "\n";
-        return 1;
-    }
+    const auto exe_name = get_program_name(argc, argv);
 
     if (argc < 2)
     {
-        cout << "Program derived from NxCore API SampleApp2\n";
-        cout << executableFileName << " libnx.so [path to tapefile]\n";
+        std::cout << "NxCore Option Header and Symbol Spin Message (modernized C++17 version)\n\n";
+        print_usage(exe_name);
         return EXIT_SUCCESS;
     }
 
-    cout << "NxCore C++ " << executableFileName << " Start.\n";
+    const std::string lib_path = argv[1];
+    const std::string tape_path = (argc >= 3) ? argv[2] : "";
 
-    int returnValue = 0;
+    std::cout << exe_name << " starting...\n";
 
-    // If we can load the NxCore libnx.so
-    if (NxCore.LoadNxCore(argv[1]))
+    // ── Load NxCore library ─────────────────────────────────────────────────
+    if (!NxCore.LoadNxCore(lib_path.c_str()))
     {
-        // If a tape filename was passed in command line argument,
-        // call ProcessTape with that argument.
-        if (argv[2])
-        {
-            cout << "Processing the tape: " << argv[2] << endl;
-            returnValue = NxCore.ProcessTape(argv[2], NULL, 0, 0, (NxCoreCallback)OnNxCoreCallback);
-        }
-        else
-            returnValue = NxCore.ProcessTape("", NULL, 0, 0, (NxCoreCallback)OnNxCoreCallback);
-
-        // output return value from processTape(), helps in troubleshooting potential issues
-        NxCore.ProcessReturnValue(returnValue);
-
-        // Unload NxCore DLL
-        NxCore.UnloadNxCore();
-    }
-    else
-    {
-        cout << "Failed to load NxCore Library: " << dlerror() << endl;
-        exit(EXIT_FAILURE);
+        std::cerr << "Failed to load NxCore library: " << dlerror() << '\n';
+        return EXIT_FAILURE;
     }
 
-    cout << "NxCore C++ " << executableFileName << " Stop.\n";
+    std::cout << "NxCore library loaded successfully.\n";
+
+    // ── Process tape or live feed ───────────────────────────────────────────
+    std::cout << "Processing " << (tape_path.empty() ? "live feed" : "tape: " + tape_path) << '\n';
+
+    const int return_value = NxCore.ProcessTape(
+        tape_path.c_str(), // tape filename or "" for live
+        nullptr,           // no user data
+        DEFAULT_PROCESS_FLAGS,
+        0, // reserved / future
+        reinterpret_cast<NxCoreCallback>(OnNxCoreCallback));
+
+    // ── Handle return code ──────────────────────────────────────────────────
+    NxCore.ProcessReturnValue(return_value);
+
+    // ── Cleanup ─────────────────────────────────────────────────────────────
+    NxCore.UnloadNxCore();
+
+    std::cout << exe_name << " finished.\n";
     return EXIT_SUCCESS;
 }

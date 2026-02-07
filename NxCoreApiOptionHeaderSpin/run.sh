@@ -16,7 +16,7 @@ if [[ ! -f "$TAPEFILEPATH" ]]; then
     exit 2
 fi
 
-APPFILENAME="nxcoreOHSS"
+APPFILENAME="symbol-spin"
 ALLOWED1="NxCoreApi002optionHeaderSpin"       # Parent directory first level
 ALLOWED2="NxCoreApiOptionHeaderSpin"          # Subdirectory where this script resides
 
