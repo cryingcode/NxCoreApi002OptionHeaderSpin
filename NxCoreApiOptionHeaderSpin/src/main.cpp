@@ -3,7 +3,7 @@
 // =============================================================================
 // SampleApp2.cpp
 // Option Header and Symbol Spin Message – Modernized C++17 version
-// Derived from SampleApp1 (Jeffrey Donovan, Jeremy Truelove, 2017)
+// Derived from SampleApp2 (Jeffrey Donovan, Jeremy Truelove, 2017)
 //
 // Demonstrates:
 //   - Loading NxCore shared library

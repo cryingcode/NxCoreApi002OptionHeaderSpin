@@ -5,9 +5,9 @@
 
 #include <iosfwd> // forward declare std::ostream
 
-// Processes NxMSG_STATUS callbacks.
+// Processes NxMSG_SYMBOLSPIN callbacks.
 // Returns NxCALLBACKRETURN_CONTINUE (normal) or NxCALLBACKRETURN_STOP (on fatal error).
 [[nodiscard]] int processNxCoreSymbolSpinMessage(
-    const NxCoreSystem * /*pNxCoreSys*/, // Unused for now, but included for future context needs
+    const NxCoreSystem *pNxCoreSys,
     const NxCoreMessage *pNxCoreMsg,
     std::ostream &out = std::cout) noexcept;
