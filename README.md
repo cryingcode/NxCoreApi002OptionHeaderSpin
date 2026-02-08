@@ -76,6 +76,7 @@ NxCoreApiOptionHeaderSpin/
 │   ├── executableUtils.cpp
 │   ├── main.cpp
 │   ├── nxcaExceptions.cpp
+│   ├── nxcore_global.cpp
 │   ├── nxcoreCallback.cpp
 │   ├── processNxCoreStatusMessage.cpp
 │   ├── processNxCoreSymbolSpinMessage.cpp
