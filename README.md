@@ -156,8 +156,14 @@ Or during development (from build directory):
 ### Usage without arguments (help output)
 ```bash
 symbol-spin
-Program derived from NxCore API Sample2
-Usage: symbol-spin <path-to-libnx.so> <path-to-tapefile>
+NxCore Option Header and Symbol Spin Message (modernized C++17 version)
+
+Usage:
+  symbol-spin <path-to-libnx.so> [path-to-tape-file]
+
+Examples:
+  symbol-spin ./libnx.so /data/tapes/20250102.nxc
+  symbol-spin ./libnx.so            # process live feed
 ```
 
 ### Sample program output from reading a tapefile
